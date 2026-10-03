@@ -30,7 +30,8 @@ motor supply input. Add a 470–1000 µF capacitor across the servo 5 V rail.
 1. Install the Arduino IDE, the **esp32** board package, and the **ESP32Servo** library.
 2. Open the sketch, pick your ESP32 board, upload.
 3. Join Wi-Fi `RobotArm` (password `robot1234`), open `http://192.168.4.1`.
-4. Sliders move shoulder / elbow / claw. Hold the base buttons to rotate; the
+4. Keyboard (laptop): `Q`/`W` claw open/close, `A`/`S` elbow up/down, `Z`/`X` shoulder up/down (5° per press, hold to repeat).
+5. Sliders move shoulder / elbow / claw. Hold the base buttons to rotate; the
    `360°` buttons run the motor for a fixed time.
 
 ## Calibrate

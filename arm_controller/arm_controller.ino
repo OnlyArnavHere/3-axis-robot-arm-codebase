@@ -103,6 +103,7 @@ const char PAGE[] PROGMEM = R"HTML(
  <button class="alt" onclick="turn(1)">360&deg; &#8635;</button>
 </div>
 
+<p style="color:#888;font-size:13px">Keys: Q/W claw open/close &middot; A/S elbow up/down &middot; Z/X shoulder up/down</p>
 <h3>Shoulder (0-180) <span class="val" id="vs"></span></h3>
 <input type="range" id="s" min="0" max="180" value="90">
 <h3>Elbow (0-90) <span class="val" id="ve"></span></h3>
@@ -135,6 +136,19 @@ function turn(d){send('/turn?dir='+d)}
   const b=$(id);
   b.addEventListener('pointerdown',e=>{e.preventDefault();startHold(d)});
   ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,stopHold));
+});
+// Keyboard: Q/W claw open/close, A/S elbow up/down, Z/X shoulder up/down
+const STEP=5;
+function nudge(id,lbl,d){
+  const el=$(id);
+  el.value=Math.max(+el.min,Math.min(+el.max,+el.value+d));
+  $(lbl).textContent=el.value+'\u00b0';
+  send('/set?'+id+'='+el.value);
+}
+const KEYS={q:['c','vc',STEP],w:['c','vc',-STEP],a:['e','ve',STEP],s:['e','ve',-STEP],z:['s','vs',STEP],x:['s','vs',-STEP]};
+document.addEventListener('keydown',ev=>{
+  const k=KEYS[ev.key.toLowerCase()];
+  if(k){ev.preventDefault();nudge(k[0],k[1],k[2])}
 });
 </script></body></html>
 )HTML";
