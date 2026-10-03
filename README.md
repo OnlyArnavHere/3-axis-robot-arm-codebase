@@ -42,3 +42,18 @@ motor supply input. Add a 470–1000 µF capacitor across the servo 5 V rail.
   wrong way, set `BASE_REVERSED`.
 - Adjust `CLAW_OPEN` / `CLAW_CLOSED` and the min/max limits so the arm never
   forces against its own frame.
+
+## Troubleshooting: test each motor on its own
+
+Upload `motor_test/motor_test.ino`, open Serial Monitor at 115200 baud and send
+one character: `1` shoulder, `2` elbow, `3` claw, `4`/`5` base each way, `6` base
+at full speed without PWM, `0` stop.
+
+| Symptom | Likely cause |
+|---|---|
+| Servo does nothing, others fine | Signal wire on the wrong pin, or no 5 V/GND to that servo |
+| All servos jitter / ESP32 reboots when one moves | Servo supply too weak or shared with the ESP32; add a 470–1000 µF capacitor, use a separate ≥1 A 5 V supply, common GND |
+| Servo buzzes at one end | Range is past the mechanical limit; narrow the min/max in the sketch |
+| Base: `6` spins but `4`/`5` don't | ENA/PWM wiring (ENA jumper still fitted, or wrong pin) or `BASE_MIN_DUTY` too low |
+| Base: `6` doesn't spin either | Motor supply to the driver, IN1/IN2 wiring, or motor/driver fault |
+| Base spins only one way | One of IN1/IN2 wired wrong or driver channel damaged |
