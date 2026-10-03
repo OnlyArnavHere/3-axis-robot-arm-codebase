@@ -12,6 +12,10 @@
  *   6  base motor full speed 3 s (checks the driver/supply, ignores PWM)
  *   0  stop everything
  *
+ * Manual jog (5 deg per key press, send repeatedly):
+ *   q / w  claw open / close        a / s  elbow up / down
+ *   z / x  shoulder up / down
+ *
  * Nothing moves until you send a command. Pins match arm_controller.ino.
  */
 
@@ -25,6 +29,17 @@ const int PIN_IN2 = 33;
 const int PIN_ENA = 14;
 
 Servo shoulder, elbow, claw;
+
+const int JOG_STEP = 5;
+int shoulderAng = 90, elbowAng = 45, clawAng = 45;
+
+// Attach on first use, move by delta within [lo, hi], print the new angle
+void jog(Servo& s, int pin, const char* name, int& ang, int delta, int lo, int hi) {
+  if (!s.attached()) s.attach(pin, 500, 2400);
+  ang = constrain(ang + delta, lo, hi);
+  s.write(ang);
+  Serial.printf("%s -> %d deg%s\n", name, ang, (ang == lo || ang == hi) ? " (limit)" : "");
+}
 
 void motorPwm(int duty) {
 #if ESP_ARDUINO_VERSION_MAJOR >= 3
@@ -83,6 +98,7 @@ void setup() {
   // Servos are attached only when tested, so idle servos don't twitch/draw current.
 
   Serial.println("\nMotor test ready. 1=shoulder 2=elbow 3=claw 4=base CW 5=base CCW 6=base full 0=stop");
+  Serial.println("Jog: q/w claw open/close, a/s elbow up/down, z/x shoulder up/down");
 }
 
 void loop() {
@@ -91,17 +107,17 @@ void loop() {
   switch (c) {
     case '1':
       shoulder.attach(PIN_SHOULDER, 500, 2400);
-      sweep(shoulder, "Shoulder", 0, 180);
+      sweep(shoulder, "Shoulder", 0, 180); shoulderAng = 90;
       shoulder.detach();
       break;
     case '2':
       elbow.attach(PIN_ELBOW, 500, 2400);
-      sweep(elbow, "Elbow", 0, 90);
+      sweep(elbow, "Elbow", 0, 90); elbowAng = 45;
       elbow.detach();
       break;
     case '3':
       claw.attach(PIN_CLAW, 500, 2400);
-      sweep(claw, "Claw", 0, 90);
+      sweep(claw, "Claw", 0, 90); clawAng = 45;
       claw.detach();
       break;
     case '4':
@@ -136,6 +152,12 @@ void loop() {
 #endif
       Serial.println("  done");
       break;
+    case 'q': jog(claw, PIN_CLAW, "Claw open", clawAng, JOG_STEP, 0, 90); break;
+    case 'w': jog(claw, PIN_CLAW, "Claw close", clawAng, -JOG_STEP, 0, 90); break;
+    case 'a': jog(elbow, PIN_ELBOW, "Elbow up", elbowAng, JOG_STEP, 0, 90); break;
+    case 's': jog(elbow, PIN_ELBOW, "Elbow down", elbowAng, -JOG_STEP, 0, 90); break;
+    case 'z': jog(shoulder, PIN_SHOULDER, "Shoulder up", shoulderAng, JOG_STEP, 0, 180); break;
+    case 'x': jog(shoulder, PIN_SHOULDER, "Shoulder down", shoulderAng, -JOG_STEP, 0, 180); break;
     case '0':
       baseStop();
       shoulder.detach(); elbow.detach(); claw.detach();

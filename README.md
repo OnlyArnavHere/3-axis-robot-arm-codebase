@@ -58,3 +58,6 @@ at full speed without PWM, `0` stop.
 | Base: `6` spins but `4`/`5` don't | ENA/PWM wiring (ENA jumper still fitted, or wrong pin) or `BASE_MIN_DUTY` too low |
 | Base: `6` doesn't spin either | Motor supply to the driver, IN1/IN2 wiring, or motor/driver fault |
 | Base spins only one way | One of IN1/IN2 wired wrong or driver channel damaged |
+
+In the test sketch you can also jog the servos from the Serial Monitor:
+`q`/`w` claw open/close, `a`/`s` elbow up/down, `z`/`x` shoulder up/down (5° per key press).
